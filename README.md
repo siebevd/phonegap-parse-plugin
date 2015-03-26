@@ -1,7 +1,9 @@
 Phonegap Parse.com Plugin
 =========================
+ 
+Extension on <a href="https://github.com/avivais/phonegap-parse-plugin"> Phonehap-parse-plugin </a>
 
-Phonegap 3.0.0 plugin for Parse.com push service
+Phonegap 3.0.0 plugin for Parse.com push service 
 
 Using [Parse.com's](http://parse.com) REST API for push requires the installation id, which isn't available in JS
 
@@ -11,14 +13,17 @@ This plugin exposes the four native Android API push services to JS:
 * <a href="https://www.parse.com/docs/android/api/com/parse/PushService.html#subscribe(android.content.Context, java.lang.String, java.lang.Class, int)">subscribe</a>
 * <a href="https://www.parse.com/docs/android/api/com/parse/PushService.html#unsubscribe(android.content.Context, java.lang.String)">unsubscribe</a>
 
+Extras:
+* Add installation item ( for advanced targeting)
+
 Installation
 ------------
 
 Pick one of these two commands:
 
 ```
-phonegap local plugin add https://github.com/benjie/phonegap-parse-plugin
-cordova plugin add https://github.com/benjie/phonegap-parse-plugin
+phonegap local plugin add https://github.com/siebevd/phonegap-parse-plugin
+cordova plugin add https://github.com/siebevd/phonegap-parse-plugin
 ```
 
 Initial Setup
@@ -90,7 +95,14 @@ Usage
 		alert('OK');
 	}, function(e) {
 		alert('error');
+	});	
+
+	parsePlugin.addInstallationItem('item','val', function(msg) {
+		alert('OK');
+	}, function(e) {
+		alert('error');
 	});
+
 </script>
 ```
 

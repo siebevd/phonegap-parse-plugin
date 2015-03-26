@@ -38,6 +38,48 @@
     }];
 }
 
+
+- (void)addInstallationItem:(CDVInvokedUrlCommand*) command
+{
+    // Not sure if this is necessary
+    if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+        UIUserNotificationSettings *settings =
+        [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert |
+         UIUserNotificationTypeBadge |
+         UIUserNotificationTypeSound
+                                          categories:nil];
+        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
+    }
+    else {
+        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:
+         UIRemoteNotificationTypeBadge |
+         UIRemoteNotificationTypeAlert |
+         UIRemoteNotificationTypeSound];
+    }
+
+    
+    CDVPluginResult* pluginResult = nil;
+    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+    NSString *item = [command.arguments objectAtIndex:0];
+    NSString *valString = [command.arguments objectAtIndex:1];
+
+    currentInstallation[item] = valString;
+    
+    [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+        if (!error) {
+            // The save saved successfully.
+        } else {
+            // There was an error saving the item
+            NSLog(@"%@",error);
+        }
+    }];
+
+
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void)getSubscriptions: (CDVInvokedUrlCommand *)command
 {
     NSArray *channels = [PFInstallation currentInstallation].channels;
@@ -84,6 +126,7 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+
 @end
 
 @implementation AppDelegate (CDVParsePlugin)
@@ -106,7 +149,6 @@ void MethodSwizzle(Class c, SEL originalSelector) {
 + (void)load
 {
     MethodSwizzle([self class], @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:));
-    MethodSwizzle([self class], @selector(application:didReceiveRemoteNotification:));
 }
 
 - (void)noop_application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)newDeviceToken
@@ -123,15 +165,7 @@ void MethodSwizzle(Class c, SEL originalSelector) {
     [currentInstallation saveInBackground];
 }
 
-- (void)noop_application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
-{
-}
 
-- (void)swizzled_application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
-{
-    // Call existing method
-    [self swizzled_application:application didReceiveRemoteNotification:userInfo];
-    [PFPush handlePush:userInfo];
-}
+
 
 @end
